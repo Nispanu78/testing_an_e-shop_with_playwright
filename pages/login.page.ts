@@ -1,5 +1,4 @@
 import { Page, Locator } from "@playwright/test"
-import { testData } from "../test-data/data.ts"
 import { loginLocators } from "../locators/login.locators.ts"
 
 

@@ -12,8 +12,8 @@ export class Login {
 
     constructor(page: Page) {
         this.page = page
-        this.userInput = page.getByPlaceholder(testData.username)
-        this.passwordInput = page.getByPlaceholder(testData.password)
+        this.userInput = page.getByPlaceholder(loginLocators.usernmameField)
+        this.passwordInput = page.getByPlaceholder(loginLocators.passwordField)
         this.loginButton = page.getByRole(loginLocators.loginButton.role, loginLocators.loginButton.options)
     }
 

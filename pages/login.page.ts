@@ -18,7 +18,7 @@ export class Login {
     }
 
     async goTo(): Promise<void>{
-        await this.page.goto(testData.baseUrl)
+        await this.page.goto(loginLocators.baseUrl)
     }
 
     async loginWithCorrectCredentials(username: string, password:string): Promise<void>{

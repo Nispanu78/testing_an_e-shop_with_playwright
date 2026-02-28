@@ -1,4 +1,4 @@
-import {test, expect} from "@playwright/test"
+import { test, expect } from "@playwright/test"
 import { Login } from "../pages/login.page"
 import { testData } from "../test-data/data.ts"
 

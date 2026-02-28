@@ -1,5 +1,5 @@
-import {test as base, Page} from "@playwright/test"
-import {Login} from "../pages/login.page"
+import { test as base, Page } from "@playwright/test"
+import { Login } from "../pages/login.page"
 
 type loginFixture = {
     authenticatedLogin: Page

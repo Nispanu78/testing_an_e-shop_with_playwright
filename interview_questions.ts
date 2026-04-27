@@ -302,11 +302,11 @@ pipeline {
     }
 }
 
-**P5. A test fails only in CI but passes locally. Walk through how you would debug it using Playwright's built-in tooling.**
-**A:** Step-by-step approach:
-1. **Enable tracing on CI** — in `playwright.config.ts` set `trace: 'on-first-retry'` (or `'on'` temporarily). 
-This captures DOM snapshots, network traffic, and console logs for every action.
-2. **Upload the trace as a CI artifact**:
+// **P5. A test fails only in CI but passes locally. Walk through how you would debug it using Playwright's built-in tooling.**
+// **A:** Step-by-step approach:
+// 1. **Enable tracing on CI** — in `playwright.config.ts` set `trace: 'on-first-retry'` (or `'on'` temporarily). 
+// This captures DOM snapshots, network traffic, and console logs for every action.
+// 2. **Upload the trace as a CI artifact**:
 
 pipeline {
     agent any
@@ -357,5 +357,5 @@ pipeline {
 
 ---
 
-These questions progressively assess architecture thinking, debugging depth, CI/CD maturity, and TypeScript proficiency — 
-the key differentiators between a mid-level and senior QA engineer.
+// These questions progressively assess architecture thinking, debugging depth, CI/CD maturity, and TypeScript proficiency — 
+// the key differentiators between a mid-level and senior QA engineer.

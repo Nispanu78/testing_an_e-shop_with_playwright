@@ -404,43 +404,43 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
 });
-// ```
+```
 
-// ```groovy
-// // Jenkinsfile — 3 shards across 3 parallel agents
-// pipeline {
-//   agent none
-//   stages {
-//     stage('Test Shards') {
-//       parallel {
-//         stage('Shard 1/3') {
-//           agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-//           steps { sh 'npx playwright test --shard=1/3' }
-//           post { always { archiveArtifacts 'blob-report/**' } }
-//         }
-//         stage('Shard 2/3') {
-//           agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-//           steps { sh 'npx playwright test --shard=2/3' }
-//           post { always { archiveArtifacts 'blob-report/**' } }
-//         }
-//         stage('Shard 3/3') {
-//           agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-//           steps { sh 'npx playwright test --shard=3/3' }
-//           post { always { archiveArtifacts 'blob-report/**' } }
-//         }
-//       }
-//     }
-//     stage('Merge Reports') {
-//       agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-//       steps {
-//         unarchive mapping: ['blob-report/**': '.']
-//         sh 'npx playwright merge-reports --reporter html ./blob-report'
-//         publishHTML target: [reportDir: 'playwright-report', reportFiles: 'index.html']
-//       }
-//     }
-//   }
-// }
-// ```
+```groovy
+// Jenkinsfile — 3 shards across 3 parallel agents
+pipeline {
+  agent none
+  stages {
+    stage('Test Shards') {
+      parallel {
+        stage('Shard 1/3') {
+          agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+          steps { sh 'npx playwright test --shard=1/3' }
+          post { always { archiveArtifacts 'blob-report/**' } }
+        }
+        stage('Shard 2/3') {
+          agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+          steps { sh 'npx playwright test --shard=2/3' }
+          post { always { archiveArtifacts 'blob-report/**' } }
+        }
+        stage('Shard 3/3') {
+          agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+          steps { sh 'npx playwright test --shard=3/3' }
+          post { always { archiveArtifacts 'blob-report/**' } }
+        }
+      }
+    }
+    stage('Merge Reports') {
+      agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+      steps {
+        unarchive mapping: ['blob-report/**': '.']
+        sh 'npx playwright merge-reports --reporter html ./blob-report'
+        publishHTML target: [reportDir: 'playwright-report', reportFiles: 'index.html']
+      }
+    }
+  }
+}
+```
 
 // Expected gains: `fullyParallel` + 4 workers brings 18 min down to ~5 min on one agent. 
 // Three shards across three agents brings wall-clock time down to ~2 min. 

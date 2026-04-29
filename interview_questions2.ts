@@ -288,46 +288,29 @@ test('POST → GET user round-trip', async ({ request }) => {
 // **A:**
 // ```typescript
 // mocks/productsMock.ts
-export const twoProductsMock = [
-  { id: '1', name: 'Mechanical Keyboard', price: 120 },
-  { id: '2', name: 'USB-C Hub',           price: 45  },
-];
-
-// tests/products.spec.ts
 import { test, expect } from '@playwright/test';
 import { twoProductsMock } from '../mocks/productsMock';
 
 test('renders mocked products from API', async ({ page }) => {
   let intercepted = false;
 
-  await page.route('**/api/products', async route => {
+  await page.route('**/api/products', route => {
     intercepted = true;
-    await route.fulfill({
-      status:      200,
+
+    route.fulfill({
+      status: 200,
       contentType: 'application/json',
-      body:        JSON.stringify(twoProductsMock),
+      body: JSON.stringify(twoProductsMock),
     });
   });
 
   await page.goto('/products');
 
-  for (const product of twoProductsMock) {
-    await expect(
-      page.getByRole('heading', { name: product.name })
-    ).toBeVisible();
-  }
+  expect(intercepted).toBeTruthy();
 
-  expect(intercepted).toBe(true);
-});
-
-// Bonus — error scenario
-test('shows error banner when API fails', async ({ page }) => {
-  await page.route('**/api/products', route =>
-    route.fulfill({ status: 500, body: 'Internal Server Error' })
-  );
-
-  await page.goto('/products');
-  await expect(page.getByTestId('error-banner')).toBeVisible();
+  await expect(page.locator('.product')).toHaveCount(2);
+  await expect(page.getByText('Mechanical Keyboard')).toBeVisible();
+  await expect(page.getByText('USB-C Hub')).toBeVisible();
 });
 // ```
 

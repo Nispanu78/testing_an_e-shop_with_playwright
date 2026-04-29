@@ -288,30 +288,30 @@ test('POST → GET user round-trip', async ({ request }) => {
 // **A:**
 // ```typescript
 // mocks/productsMock.ts
-import { test, expect } from '@playwright/test';
-import { twoProductsMock } from '../mocks/productsMock';
+// import { test, expect } from '@playwright/test';
+// import { twoProductsMock } from '../mocks/productsMock';
 
-test('renders mocked products from API', async ({ page }) => {
-  let intercepted = false;
+// test('renders mocked products from API', async ({ page }) => {
+//   let intercepted = false;
 
-  await page.route('**/api/products', route => {
-    intercepted = true;
+//   await page.route('**/api/products', route => {
+//     intercepted = true;
 
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(twoProductsMock),
-    });
-  });
+//     route.fulfill({
+//       status: 200,
+//       contentType: 'application/json',
+//       body: JSON.stringify(twoProductsMock),
+//     });
+//   });
 
-  await page.goto('/products');
+//   await page.goto('/products');
 
-  expect(intercepted).toBeTruthy();
+//   expect(intercepted).toBeTruthy();
 
-  await expect(page.locator('.product')).toHaveCount(2);
-  await expect(page.getByText('Mechanical Keyboard')).toBeVisible();
-  await expect(page.getByText('USB-C Hub')).toBeVisible();
-});
+//   await expect(page.locator('.product')).toHaveCount(2);
+//   await expect(page.getByText('Mechanical Keyboard')).toBeVisible();
+//   await expect(page.getByText('USB-C Hub')).toBeVisible();
+// });
 // ```
 
 // ---
@@ -339,20 +339,20 @@ test('renders mocked products from API', async ({ page }) => {
 // **Corrected, stable test:**
 // ```typescript
 // ❌ Flaky original
-await page.click('#confirm-btn');
-expect(page.url()).toContain('/order-success');
+// await page.click('#confirm-btn');
+// expect(page.url()).toContain('/order-success');
 
-// ✅ Stable version
-const confirmBtn = page.getByRole('button', { name: 'Confirm Order' });
+// // ✅ Stable version
+// const confirmBtn = page.getByRole('button', { name: 'Confirm Order' });
 
-await expect(page.getByTestId('loading-overlay')).toBeHidden();
-await expect(confirmBtn).toBeEnabled();
-await confirmBtn.click();
+// await expect(page.getByTestId('loading-overlay')).toBeHidden();
+// await expect(confirmBtn).toBeEnabled();
+// await confirmBtn.click();
 
-await page.waitForURL('**/order-success**');
-await expect(
-  page.getByRole('heading', { name: /order confirmed/i })
-).toBeVisible();
+// await page.waitForURL('**/order-success**');
+// await expect(
+//   page.getByRole('heading', { name: /order confirmed/i })
+// ).toBeVisible();
 // ```
 
 // ---

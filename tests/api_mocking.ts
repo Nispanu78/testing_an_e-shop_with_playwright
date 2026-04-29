@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-export const twoProductsMock = [ { id: '1', name: 'Mechanical Keyboard', price: 120 }, { id: '2', name: 'USB-C Hub', price: 45 }, ];
+export const twoProductsMock = [ 
+    { id: '1', name: 'Mechanical Keyboard', price: 120 }, 
+    { id: '2', name: 'USB-C Hub', price: 45 }, ];
 
 test('renders mocked products from API', async ({ page }) => {
   let intercepted = false;

@@ -54,7 +54,14 @@ export class Login {
         await this.userInput.fill(username);
         await this.passwordInput.fill(password);
         await this.submitButton.click();
+    } 
+
+    // Controlled read-only access to the underlying Page
+    getPage(): Page {
+        return this.page;
     }
+
+    
 
     }
 

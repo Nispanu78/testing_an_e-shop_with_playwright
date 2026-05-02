@@ -12,9 +12,9 @@ const products = [{
 
 test("Populate the database with mocked data and retrieve it", async({ page }) => {
   const intercepted = false;
-  await page.route("**/api/products", route => {
+  await page.route("**/api/products", async (route) => {
     const intercepted = true;
-    route.fulfill({
+    await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(products)

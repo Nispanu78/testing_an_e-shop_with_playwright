@@ -34,5 +34,5 @@ test("Create and retrieve user", async({ request }) => {
     expect(getUserGet).toMatchObject({
         id: getUserGet.id,
         ...payload
-    })
-})
+    });
+});

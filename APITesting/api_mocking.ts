@@ -21,7 +21,7 @@ test("Populate the database with mocked data and retrieve it", async({ page }) =
     });
   });
 
-  await page.goto("/products")
+  await page.goto("/products");
   expect(intercepted).toBeTruthy();
   await expect(page.locator(".products")).toHaveCount(2);
   await expect(page.getByText("abc")).toBeVisible();

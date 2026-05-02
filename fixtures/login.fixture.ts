@@ -3,16 +3,16 @@ import { Login } from "../pages/login.page"
 import { testData } from "../test-data/data"
 
 type loginFixture = {
-    authenticatedLogin: Page
+    authenticatedLogin: Page;
 }
 
 const valid_login = base.extend<loginFixture>({
     authenticatedLogin: async({page}, use) => {
-        const login = new Login(page)
-        await login.goTo()
-        await login.loginWithCorrectCredentials(testData.username, testData.password)
+        const login = new Login(page);
+        await login.goTo();
+        await login.loginWithCorrectCredentials(testData.username, testData.password);
 
-        await use(page)
+        await use(page);
     }
 })
 

@@ -5,4 +5,4 @@ import { Login } from "../pages/login.page.ts";
 valid_login("Login with correct credentials", async({ authenticatedLogin }) => {
     await expect(authenticatedLogin).toHaveURL('https://www.saucedemo.com/inventory.html');
     await expect(authenticatedLogin).toHaveTitle("Swag Labs");
-})
+});

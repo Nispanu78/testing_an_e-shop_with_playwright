@@ -14,6 +14,6 @@ const valid_login = base.extend<loginFixture>({
 
         await use(page);
     }
-})
+});
 
 export { valid_login }

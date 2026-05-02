@@ -30,9 +30,5 @@ export class Login {
     // Controlled read-only access to the underlying Page
     getPage(): Page {
         return this.page;
-    }
-
-    
-
-    }
+    }};
 

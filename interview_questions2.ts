@@ -12,6 +12,7 @@
 
 // **Q:** Explain the Page Object Model pattern and describe how you would structure a large-scale 
 // Playwright project that covers dozens of pages, shared components, and multiple user roles.
+
 // **A:** The Page Object Model encapsulates each page's selectors and interactions inside a 
 // dedicated class, keeping test files clean and DRY. For a large project the folder structure 
 // should reflect the domain:
@@ -28,10 +29,13 @@
 // ```
 
 // Key design decisions:
-// - Page classes expose meaningful action methods (`login()`, `addToCart()`) instead of raw locators, so tests read like user stories.
+// - Page classes expose meaningful action methods (`login()`, `addToCart()`) instead of raw locators, 
+// so tests read like user stories.
 // - A base `BasePage` class holds the shared page reference and common helpers (`waitForNetworkIdle`, `scrollTo`…).
-// - Role-specific fixtures (`adminPage`, `buyerPage`) compose the right pages and pre-authenticate, so each test starts in a known state without repeating auth boilerplate.
-// - Component classes are injected into pages that contain them, enabling re-use across pages (e.g., a `SearchBar` class used by both `HomePage` and `CategoryPage`).
+// - Role-specific fixtures (`adminPage`, `buyerPage`) compose the right pages and pre-authenticate, 
+// so each test starts in a known state without repeating auth boilerplate.
+// - Component classes are injected into pages that contain them, enabling re-use across pages 
+// (e.g., a `SearchBar` class used by both `HomePage` and `CategoryPage`).
 
 // ---
 
@@ -40,6 +44,7 @@
 // **Q:** How does TypeScript's type system improve test framework maintainability, 
 // and what patterns — such as generics, utility types, or discriminated unions — would 
 // you apply when building a shared API client for both production code and tests?
+
 // **A:** TypeScript gives the framework compile-time safety that catches refactoring 
 // mistakes before CI runs a single test. Concrete patterns:
 
@@ -63,8 +68,8 @@
 // **Q:** What are the most common root causes of flaky tests in Playwright E2E suites, and what systematic 
 // strategies would you implement at the framework level — not just per-test fixes — to detect, quarantine, 
 // and eliminate them?
-// **A:** Root causes fall into three buckets:
 
+// **A:** Root causes fall into three buckets:
 // 1. **Timing** — asserting before the UI/network has settled (wrong wait strategy, missing network idle).
 // 2. **State leakage** — tests sharing browser state, database records, or auth tokens.
 // 3. **Environmental instability** — CPU throttling in CI, shared test databases, third-party APIs.
@@ -91,35 +96,72 @@
 // **Q:** Describe the ideal Docker + Jenkins setup for running Playwright tests in CI. 
 // What base image would you use, how would you structure the Jenkinsfile stages, 
 // and how would you manage browser binaries and artifacts?
-// **A:**
 
+// **A:**
 // **Docker image:** Start from `mcr.microsoft.com/playwright:v1.x.x-focal` — 
 // it ships with Chromium, Firefox, and WebKit pre-installed alongside all OS-level dependencies, 
 // eliminating browser mismatch issues. Add only app dependencies on top (`npm ci`). 
 // Pin the image tag to a specific Playwright version for reproducibility.
 
 // **Jenkinsfile structure:**
-```groovy
-pipeline {
-  agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-  stages {
-    stage('Install')         { steps { sh 'npm ci' } }
-    stage('Lint & Typecheck'){ steps { sh 'npm run lint && npm run typecheck' } }
-    stage('E2E Tests') {
-      parallel {
-        stage('Chromium') { steps { sh 'npx playwright test --project=chromium' } }
-        stage('Firefox')  { steps { sh 'npx playwright test --project=firefox'  } }
-      }
-    }
-  }
-  post {
-    always {
-      publishHTML target: [reportDir: 'playwright-report', reportFiles: 'index.html']
-      archiveArtifacts artifacts: 'test-results/**', allowEmptyArchive: true
-    }
-  }
-}
-```
+
+// pipeline {
+              // agent: Specifies where the pipeline runs.
+              // docker: Instructs Jenkins to spin up a container.
+              // image: Uses a prebuilt Playwright image:
+              // Includes Node.js, browsers (Chromium, Firefox, WebKit), and dependencies.
+              // Ensures reproducibility and eliminates “works on my machine” issues.
+//   agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+              // Logical grouping of pipeline steps. Each stage is executed sequentially unless explicitly parallelized.
+//   stages {
+              // stage('Install'): Named phase for dependency installation.
+              // steps: Contains executable actions.
+              // sh 'npm ci':
+              // Clean install using package-lock.json.
+              // Deterministic, faster than npm install.
+              // Removes existing node_modules before installing.
+//     stage('Install')         { steps { sh 'npm ci' } }
+              // Runs static analysis before tests.
+              // npm run lint:
+              // Executes linter (e.g., ESLint).
+              // Detects code quality and style violations.
+              // npm run typecheck:
+              // Runs TypeScript compiler (tsc --noEmit typically).
+              // Validates type correctness without generating output.
+              // &&:
+              // Ensures typecheck runs only if lint succeeds.
+//     stage('Lint & Typecheck'){ steps { sh 'npm run lint && npm run typecheck' } }
+              // Defines end-to-end testing phase.
+//     stage('E2E Tests') {
+              // Enables concurrent execution of sub-stages.
+              // Reduces total runtime significantly.
+//       parallel {
+              // Runs Playwright tests targeting Chromium.
+              // --project=chromium:
+              // Uses configuration from playwright.config.ts.
+              // Executes tests in Chromium browser context.
+//         stage('Chromium') { steps { sh 'npx playwright test --project=chromium' } }
+              // Same tests, different browser engine.
+              // Ensures cross-browser compatibility.
+//         stage('Firefox')  { steps { sh 'npx playwright test --project=firefox'  } }
+//       }
+//     }
+//   }
+//   post {
+//     always {
+            // Publishes Playwright HTML report in Jenkins UI.
+            // reportDir: Folder where report is generated.
+            // reportFiles: Entry file (usually index.html).
+//       publishHTML target: [reportDir: 'playwright-report', reportFiles: 'index.html']
+            // Stores test artifacts for later inspection.
+            // artifacts: Path pattern (screenshots, videos, traces).
+            // allowEmptyArchive: true:
+            // Prevents pipeline failure if no artifacts exist.
+//       archiveArtifacts artifacts: 'test-results/**', allowEmptyArchive: true
+//     }
+//   }
+// }
+
 
 // Key decisions:
 // - Parallel browser stages cut wall-clock time roughly in half.
@@ -131,11 +173,12 @@ pipeline {
 // ---
 
 // **T5 · Mocking · API & Network Mocking**
+
 // **Q:** When and why would you mock backend services or intercept network traffic in E2E tests? 
 // Explain the trade-offs and describe how Playwright's network interception API supports different 
 // mocking strategies.
-// **A:**
 
+// **A:**
 // **When to mock:** third-party services (payment gateways, email providers), slow or 
 // unreliable microservices, edge-case scenarios (HTTP 500, 429, empty lists), and contract 
 // testing before the backend is built.
@@ -150,7 +193,8 @@ pipeline {
 // **Playwright interception strategies:**
 
 // 1. `page.route()` — full request interception: `route.fulfill({ status: 200, json: mockOrders })`.
-// 2. `route.continue()` with modification — pass through but mutate headers: `route.continue({ headers: { ...route.request().headers(), 'x-role': 'admin' } })`.
+// 2. `route.continue()` with modification — pass through but mutate headers: 
+// `route.continue({ headers: { ...route.request().headers(), 'x-role': 'admin' } })`.
 // 3. `page.routeFromHAR()` — replay a recorded HAR file; ideal for complex multi-step flows.
 // 4. `route.abort('failed')` — simulate offline or network error scenarios.
 
@@ -161,13 +205,14 @@ pipeline {
 
 // ## PRACTICAL QUESTIONS
 
----
+
 
 // **P1 · Coding · POM Implementation**
 
 // **Q:** Write a TypeScript Playwright Page Object class for a login page with email, password, 
 // and submit fields. The class must expose a typed `login()` method and a `getErrorMessage()` method. 
 // Then show how a fixture would inject it into a test.
+
 // **A:**
 // ```typescript
 // pages/LoginPage.ts
@@ -229,9 +274,11 @@ test('shows error on bad credentials', async ({ loginPage }) => {
 // ---
 
 // **P2 · API · API Testing**
+
 // **Q:** Using Playwright's `APIRequestContext`, write a test that creates a user via 
 // `POST /api/users`, then asserts the `GET /api/users/:id` response matches the created payload. 
 // Include proper TypeScript typing and status-code assertions.
+
 // **A:**
 // ```typescript
 // types/user.ts
@@ -282,9 +329,11 @@ test('POST → GET user round-trip', async ({ request }) => {
 // ---
 
 // **P3 · Mocking · Network Mocking**
+
 // **Q:** Write a Playwright test that intercepts a `GET /api/products` call, 
 // returns a mocked payload of two items, and asserts that both product names are rendered 
 // in the UI. Also show how to assert the request was actually intercepted.
+
 // **A:**
 // ```typescript
 // mocks/productsMock.ts
@@ -322,19 +371,21 @@ test('POST → GET user round-trip', async ({ request }) => {
 // but fails in CI with "Element not found". Walk through the exact debugging steps 
 // you would take using Playwright's built-in tooling, and write the corrected, 
 // stable version of the failing assertion.
+
 // **A:**
-
 // **Debugging workflow:**
-
 // 1. Reproduce in headed mode with CI env vars: `BASE_URL=https://staging.app npx playwright test --headed order.spec.ts`
-// 2. Enable trace on first retry in `playwright.config.ts`: `trace: 'on-first-retry', screenshot: 'only-on-failure', video: 'on-first-retry'`. Run in CI, download the `trace.zip` artifact.
+// 2. Enable trace on first retry in `playwright.config.ts`: 
+// `trace: 'on-first-retry', screenshot: 'only-on-failure', video: 'on-first-retry'`. 
+// Run in CI, download the `trace.zip` artifact.
 // 3. Open the trace viewer: `npx playwright show-trace trace.zip`. 
 // Inspect the timeline — was the button covered by a loading spinner? 
 // Was a network request still in flight when the click fired?
 // 4. Use Playwright Inspector locally: `PWDEBUG=1 npx playwright test order.spec.ts`. 
 // Step through actions, hover locators, confirm selectors resolve.
 
-// Common CI-specific causes found via trace: a skeleton loader covering the button for 300–800 ms (not present locally on a fast machine), or a viewport size difference making the button off-screen.
+// Common CI-specific causes found via trace: a skeleton loader covering the button for 300–800 ms 
+// (not present locally on a fast machine), or a viewport size difference making the button off-screen.
 
 // **Corrected, stable test:**
 // ```typescript
@@ -362,68 +413,69 @@ test('POST → GET user round-trip', async ({ request }) => {
 // **Q:** Your suite of 200 tests takes 18 minutes in CI on a single worker. 
 // Show the `playwright.config.ts` changes and the Jenkinsfile modifications 
 // you would make to bring this under 5 minutes, without sacrificing reliability.
+
 // **A:**
 // ```typescript
 // playwright.config.ts — optimized
-import { defineConfig, devices } from '@playwright/test';
 
-export default defineConfig({
-  workers:       process.env.CI ? 4 : undefined, // 50% of available CPUs
-  fullyParallel: true,                            // every file runs concurrently
-  maxFailures:   process.env.CI ? 10 : undefined, // fail fast in CI
-  retries:       process.env.CI ? 2 : 0,
-  timeout:       30_000,
-  expect:        { timeout: 8_000 },
+// import { defineConfig, devices } from '@playwright/test';
 
-  use: {
-    baseURL:    process.env.BASE_URL ?? 'http://localhost:3000',
-    trace:      'on-first-retry',
-    screenshot: 'only-on-failure',
-    video:      'on-first-retry',
-  },
+// export default defineConfig({
+//   workers:       process.env.CI ? 4 : undefined,  // 50% of available CPUs
+//   fullyParallel: true,                            // every file runs concurrently
+//   maxFailures:   process.env.CI ? 10 : undefined, // fail fast in CI
+//   retries:       process.env.CI ? 2 : 0,
+//   timeout:       30_000,
+//   expect:        { timeout: 8_000 },
 
-  projects: [
-    // Chromium only in PR builds; add Firefox/WebKit in a nightly job
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-  ],
-});
-```
+//   use: {
+//     baseURL:    process.env.BASE_URL ?? 'http://localhost:3000',
+//     trace:      'on-first-retry',
+//     screenshot: 'only-on-failure',
+//     video:      'on-first-retry',
+//   },
 
-```groovy
+//   projects: [
+//     // Chromium only in PR builds; add Firefox/WebKit in a nightly job
+//     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+//   ],
+// });
+
+
 // Jenkinsfile — 3 shards across 3 parallel agents
-pipeline {
-  agent none
-  stages {
-    stage('Test Shards') {
-      parallel {
-        stage('Shard 1/3') {
-          agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-          steps { sh 'npx playwright test --shard=1/3' }
-          post { always { archiveArtifacts 'blob-report/**' } }
-        }
-        stage('Shard 2/3') {
-          agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-          steps { sh 'npx playwright test --shard=2/3' }
-          post { always { archiveArtifacts 'blob-report/**' } }
-        }
-        stage('Shard 3/3') {
-          agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-          steps { sh 'npx playwright test --shard=3/3' }
-          post { always { archiveArtifacts 'blob-report/**' } }
-        }
-      }
-    }
-    stage('Merge Reports') {
-      agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
-      steps {
-        unarchive mapping: ['blob-report/**': '.']
-        sh 'npx playwright merge-reports --reporter html ./blob-report'
-        publishHTML target: [reportDir: 'playwright-report', reportFiles: 'index.html']
-      }
-    }
-  }
-}
-```
+// pipeline {
+//   agent none
+//   stages {
+//     stage('Test Shards') {
+//       parallel {
+//         stage('Shard 1/3') {
+//           agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+//           steps { sh 'npx playwright test --shard=1/3' }
+//           post { always { archiveArtifacts 'blob-report/**' } }
+//         }
+//         stage('Shard 2/3') {
+//           agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+//           steps { sh 'npx playwright test --shard=2/3' }
+//           post { always { archiveArtifacts 'blob-report/**' } }
+//         }
+//         stage('Shard 3/3') {
+//           agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+//           steps { sh 'npx playwright test --shard=3/3' }
+//           post { always { archiveArtifacts 'blob-report/**' } }
+//         }
+//       }
+//     }
+//     stage('Merge Reports') {
+//       agent { docker { image 'mcr.microsoft.com/playwright:v1.44-focal' } }
+//       steps {
+//         unarchive mapping: ['blob-report/**': '.']
+//         sh 'npx playwright merge-reports --reporter html ./blob-report'
+//         publishHTML target: [reportDir: 'playwright-report', reportFiles: 'index.html']
+//       }
+//     }
+//   }
+// }
+// ```
 
 // Expected gains: `fullyParallel` + 4 workers brings 18 min down to ~5 min on one agent. 
 // Three shards across three agents brings wall-clock time down to ~2 min. 
